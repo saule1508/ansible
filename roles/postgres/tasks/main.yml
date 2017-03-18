@@ -1,0 +1,14 @@
+---
+  - group:
+      name: postgres
+      gid: 50010
+      state: present
+
+  - user: 
+      name: postgres
+      uid: 50010
+      group: postgres
+      state: present
+    
+  - name: create data directory
+    file: path=/u01/pg{{ pgversion }}/data state=directory owner=postgres group=postgres mode=0700

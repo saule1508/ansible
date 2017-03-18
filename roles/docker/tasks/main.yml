@@ -1,0 +1,68 @@
+---
+
+  - name: add repository
+    yum_repository:
+      name: docker-ce-stable
+      description: Docker CE Stable - $basearch
+      baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+      gpgkey: https://download.docker.com/linux/centos/gpg
+
+  - name: install docker-ce-stable yum package
+    yum:
+      name: docker-ce
+      state: latest
+
+  - name: check if device sdb exists
+    command: fdisk -l /dev/sdb 
+    register: sdb_exists
+    failed_when: sdb_exists.rc != 0
+
+  - name: create docker volume group
+    lvg: 
+      vg: docker 
+      pvs: /dev/sdb 
+      state: present
+
+  - name : create thinpool for docker
+    lvol: 
+      vg: docker
+      lv: thinpool
+      size: 95%VG
+      opts: --wipesignatures y
+      state: present
+
+  - name : check thinpoolmeta exists
+    command: lvdisplay /dev/docker/thinpoolmeta
+    ignore_errors: yes
+    register: thinpoolmeta_exists
+
+  - name : create meta for docker
+    lvol: 
+      vg: docker
+      lv: thinpoolmeta
+      size: 5%VG
+      opts: --wipesignatures y
+    when: thinpoolmeta_exists.rc != 0
+      
+      
+  - name: convert pool to a thinpool
+    command: lvconvert -y --zero n -c 512K --thinpool docker/thinpool --poolmetadata docker/thinpoolmeta
+    when: thinpoolmeta_exists.rc != 0
+      
+
+  - name: Configure autoextension of thin pools via an lvm profile
+    copy:
+      src: docker-thinpool.profile
+      dest: /etc/lvm/profile/docker-thinpool.profile
+
+  - name: Apply your new lvm profile
+    command: lvchange --metadataprofile docker-thinpool docker/thinpool
+
+  - name: configure docker daemon
+    copy:
+      src: daemon.json
+      dest: /etc/docker/daemon.json
+
+  - name: start docker
+    command: systemctl start docker
+  

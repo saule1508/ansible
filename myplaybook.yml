@@ -1,0 +1,12 @@
+---
+- hosts: phoenix
+  vars:
+    pgversion: 96
+  remote_user: root
+  become: yes
+  become_method: sudo
+
+  roles:
+    - docker
+#    - postgres
+    
