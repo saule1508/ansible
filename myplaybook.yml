@@ -1,12 +1,26 @@
 ---
 - hosts: phoenix
   vars:
-    pgversion: 96
-  remote_user: root
+  remote_user: vagrant
   become: yes
   become_method: sudo
 
+
+  pre_tasks:
+    - name: include_vars
+      include_vars:
+        file: art.yml
+        name: images
+         
+
+    - debug: var=images
+
+
   roles:
-    - docker
-#    - postgres
+    - base
+    - docker-ce
+    - postgres
+    - cluster
+    - consul
+    - docker_infra
     

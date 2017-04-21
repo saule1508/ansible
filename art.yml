@@ -1,0 +1,19 @@
+---
+postgres: 
+  name: pg
+  tag: 9.6.2
+  id: 62cb7b3124a9 
+  file: pg.9.6.2.tar
+
+pgpool: 
+  name: pgpool
+  tag: 9.6.2
+  id: c8431ecdbcf0
+  file: pgpool.9.6.2.tar
+
+registrator:
+  name: "gliderlabs/registrator"
+  tag: latest
+  id: 3b59190c6c80
+  file: gliderlabs_registrator.latest.tar
+...

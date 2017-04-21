@@ -1,14 +1,113 @@
 ---
+
   - group:
       name: postgres
       gid: 50010
-      state: present
 
-  - user: 
+  - user:
       name: postgres
       uid: 50010
-      group: postgres
+      groups: "wheel,postgres"
+      generate_ssh_key: yes
+      ssh_key_bits: 2048
+      ssh_key_file: .ssh/id_rsa
+      comment: "postgres user, for running docker containers and EVS applications"
       state: present
-    
-  - name: create data directory
-    file: path=/u01/pg{{ pgversion }}/data state=directory owner=postgres group=postgres mode=0700
+
+  - name: Allow postgres user to have passwordless sudo
+    lineinfile:
+      dest: /etc/sudoers
+      state: present
+      regexp: '^postgres'
+      line: 'postgres ALL=(ALL) NOPASSWD: ALL'
+
+  - name: set password for postgres
+    command: echo 'evsadmi!' | passwd --stdin postgres
+
+  - name: volume group vg_01
+    lvg:
+      vg: vg01
+      pvs: "/dev/{{ pgdata_disk }}"
+      state: present
+
+  - name: volume group vg_02
+    lvg:
+      vg: vg02
+      pvs: "/dev/{{ pgbackup_disk }}"
+      state: present
+
+  - name: creating LVM logical volume lv_u01
+    lvol: 
+      vg: vg01
+      lv: lv_u01
+      size: "100%FREE"
+      state: present
+    when:  hostvars[inventory_hostname]['ansible_lvm']['lvs']['lv_u01'] is not defined
+
+  - name: creating filesystem on lv_u01
+    filesystem: 
+      fstype: xfs 
+      dev: /dev/vg01/lv_u01
+
+  - name: mounting /u01
+    mount: 
+      name: /u01
+      src: /dev/vg01/lv_u01
+      fstype: xfs
+      state: mounted
+
+  - name: creating LVM logical volume lv_u02
+    lvol: 
+      vg: vg02
+      lv: lv_u02
+      size: "100%FREE"
+      state: present
+    when:  hostvars[inventory_hostname]['ansible_lvm']['lvs']['lv_u02'] is not defined
+
+  - name: creating filesystem on lv_u02
+    filesystem: 
+      fstype: xfs 
+      dev: /dev/vg02/lv_u02
+
+  - name: mounting /u02
+    mount: 
+      name: /u02
+      src: /dev/vg02/lv_u02
+      fstype: xfs
+      state: mounted
+
+  - name: directory /u01/pg96/data
+    file:
+      path: /u01/pg96/data
+      state: directory
+      mode: 0700      
+      owner: postgres
+      group: postgres
+
+  - name: directory /u02/archive
+    file:
+      path: /u02/archive
+      state: directory
+      mode: 0755      
+      owner: postgres
+      group: postgres
+
+  - name: directory /u02/backup
+    file:
+      path: /u02/backup
+      state: directory
+      mode: 0755      
+      owner: postgres
+      group: postgres
+
+
+  - name: load postgres image
+    include: "../../../shared_tasks/load_image.yml"
+    vars:
+      image: "{{ images.postgres }}"
+
+  - name: load pgpool image
+    include: "../../../shared_tasks/load_image.yml"
+    vars:
+       image: "{{ images.pgpool }}"
+

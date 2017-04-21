@@ -1,0 +1,55 @@
+version: '2'
+
+volumes:
+  pg01db:
+  pg01archive:
+  pg01backup:
+
+networks:
+  default:
+    external:
+      name: phoenix_network
+
+services:
+
+  #Registrator -> register docker containers into consul
+  registrator:
+    image: gliderlabs/registrator:latest
+    command: " -internal consul://127.0.0.1:8500"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+
+  #Database configuration
+  #PGPOOL
+  pgpool01:
+    image: {{ images.pgpool.name }}:{{ images.pgpool.tag }}
+    environment:
+      PG_MASTER_NODE_NAME: pg01
+      PG_BACKEND_NODE_LIST: ${PG_BACKEND_NODE_LIST}
+      PGP_NODE_NAME: pgpool01
+      REPMGRPWD: ${REPMGRPDW:-evs123}
+    ports:
+      - 9999:9999
+
+  #POSTGRESQL
+  pg01:
+    image: {{ images.postgres.name }}:{{ images.postgres.tag }}
+    environment:
+      SERVICE_NAME: pg01
+      INITIAL_NODE_TYPE: ${INITIAL_NODE_TYPE}
+      NODE_ID: ${NODE_ID}
+      NODE_NAME: ${PG_NODE_NAME}
+      ARCHIVELOG: 1
+      MSLIST: ${MSLIST}
+      MSOWNERPWDLIST: ${MSOWNERPWDLIST}
+      MSUSERPWDLIST: ${MSUSERPWDLIST}
+      REPMGRPWD: ${REPMGRPDW:-evs123}
+
+    volumes:
+      - pg01db:/u01/pg96/data
+      - pg01archive:/u02/archive
+      - pg01backup:/u02/backup
+    ports:
+      - 5432:5432
+    privileged: true
+
