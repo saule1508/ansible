@@ -7,4 +7,25 @@
     with_items:
       - registrator
 
+  - name: copy registrator unit file
+    copy:
+      src: registrator.service
+      dest: /etc/systemd/system/registrator.service
+      owner: root
+      group: root
+      mode: 754
+
+  - name: copy registrator start script
+    copy:
+      src: start_registrator.sh
+      dest: /opt/evs/run/start_registrator.sh
+      owner: evs
+      group: evs
+      mode: 754
+
+  - name: enable registrator unit
+    systemd:
+      name: registrator
+      enabled: yes
+
 ...

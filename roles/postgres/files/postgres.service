@@ -1,0 +1,17 @@
+[Unit]
+Description=postgres docker 
+After=docker.service
+Requires=docker.service
+
+[Service]
+User=evs
+Group=evs
+EnvironmentFile=-/etc/evs/config
+Restart=on-failure
+ExecStartPre=-/usr/bin/docker stop pg01
+ExecStartPre=-/usr/bin/docker rm pg01
+ExecStart=/opt/evs/run/start_postgres.sh
+ExecStop=-/usr/bin/docker stop pg01
+
+[Install]
+WantedBy=multi-user.target

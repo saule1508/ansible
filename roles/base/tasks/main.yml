@@ -29,7 +29,7 @@
     lineinfile:
       dest: /etc/sudoers
       state: present
-      regexp: '^evs'
+      regexp: '^evs '
       line: 'evs ALL=(ALL) NOPASSWD: ALL'
 
   - name: set hostname to value from inventory
@@ -64,6 +64,10 @@
 
   - name: create directory /etc/evs
     file: path=/etc/evs state=directory owner=evs group=evs mode=0750
+
+  - name: create directory /opt/evs/run
+    file: path=/opt/evs/run state=directory owner=evs group=evs mode=0755
+
 
   - name: install config file
     copy:

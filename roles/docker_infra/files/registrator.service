@@ -1,0 +1,17 @@
+[Unit]
+Description=registrator docker
+After=docker.service
+Requires=docker.service
+
+[Service]
+User=evs
+Group=evs
+EnvironmentFile=-/etc/evs/config
+Restart=on-failure
+ExecStartPre=-/usr/bin/docker stop registrator
+ExecStartPre=-/usr/bin/docker rm registrator
+ExecStart=/opt/evs/run/start_registrator.sh
+ExecStop=/usr/bin/docker stop registrator
+
+[Install]
+WantedBy=multi-user.target

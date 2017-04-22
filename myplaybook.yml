@@ -1,20 +1,19 @@
 ---
+
 - hosts: phoenix
   vars:
-  remote_user: vagrant
-  become: yes
-  become_method: sudo
+    become: yes
+    become_user: root
+    become_method: sudo
 
 
   pre_tasks:
     - name: include_vars
       include_vars:
-        file: art.yml
+        file: "{{ stage_dir }}/content.yml"
         name: images
          
-
     - debug: var=images
-
 
   roles:
     - base
@@ -23,4 +22,6 @@
     - cluster
     - consul
     - docker_infra
-    
+
+
+...

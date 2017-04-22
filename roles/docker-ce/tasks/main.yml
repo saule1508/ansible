@@ -66,10 +66,11 @@
       dest: /etc/docker/daemon.json
 
   - name: check if user evs exists
-    shell: "grep evs /etc/passwd | wc -l"
+    shell: "grep evs: /etc/passwd | wc -l"
     register: evs_exists
     changed_when: false
 
+  - debug: var=evs_exists
 
   - name: add group to user evs
     user:

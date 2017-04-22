@@ -111,3 +111,26 @@
     vars:
        image: "{{ images.pgpool }}"
 
+  - name: copy postgres unit file
+    copy:
+      src: postgres.service
+      dest: /etc/systemd/system/postgres.service
+      owner: root
+      group: root
+      mode: 754
+
+  - name: copy postgres start/stop script
+    copy:
+      src: "{{ item }}"
+      dest: "/opt/evs/run/{{ item }}"
+      owner: evs
+      group: evs
+      mode: 754
+    with_items:
+      - start_postgres.sh
+      - stop_postgres.sh
+  
+  - name: enable postgres.service
+    systemd:
+      name: postgres
+      enabled: yes
