@@ -4,4 +4,4 @@
 # note that postgres and registrator are starting outside the stack
 # because swarm does not support privileged containers
 
-docker stack deploy -c /opt/evs/run/docker-compose.infra phoenix
+docker stack deploy -c /opt/evs/run/docker-compose.infra.yml phoenix

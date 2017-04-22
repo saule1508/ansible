@@ -191,16 +191,4 @@
       group: evs
       mode: "u=rw,g=r,o=r"
 
-  - name: install run_pg.sh in /opt/evs/run
-    copy: 
-      src: "run_pg.sh"
-      dest: "/opt/evs/run/run_pg.sh"
-      owner: evs
-      group: evs
-      mode: "u=rwx,g=rwx,o=r"
-    
- 
-...
-    
- 
 ...
