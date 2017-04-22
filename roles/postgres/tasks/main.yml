@@ -117,7 +117,7 @@
       dest: /etc/systemd/system/postgres.service
       owner: root
       group: root
-      mode: 754
+      mode: 0754
 
   - name: copy postgres start/stop script
     copy:
@@ -125,7 +125,7 @@
       dest: "/opt/evs/run/{{ item }}"
       owner: evs
       group: evs
-      mode: 754
+      mode: 0754
     with_items:
       - start_postgres.sh
       - stop_postgres.sh

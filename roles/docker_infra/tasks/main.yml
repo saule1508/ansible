@@ -13,7 +13,7 @@
       dest: /etc/systemd/system/registrator.service
       owner: root
       group: root
-      mode: 754
+      mode: 0754
 
   - name: copy registrator start script
     copy:
@@ -21,11 +21,32 @@
       dest: /opt/evs/run/start_registrator.sh
       owner: evs
       group: evs
-      mode: 754
+      mode: 0754
 
   - name: enable registrator unit
     systemd:
       name: registrator
+      enabled: yes
+
+  - name: copy phoenix unit file
+    copy:
+      src: phoenix.service
+      dest: /etc/systemd/system/phoenix.service
+      owner: root
+      group: root
+      mode: 0754
+
+  - name: copy phoenix start script
+    copy:
+      src: start_phoenix.sh
+      dest: /opt/evs/run/start_phoenix.sh
+      owner: evs
+      group: evs
+      mode: 0754
+
+  - name: enable phoenix unit
+    systemd:
+      name: phoenix
       enabled: yes
 
 ...
