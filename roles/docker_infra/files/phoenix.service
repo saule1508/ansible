@@ -1,0 +1,15 @@
+[Unit]
+Description=phoenix stack
+After=docker.service postgres.service registrator.service
+Requires=docker.service
+
+[Service]
+User=evs
+Group=evs
+EnvironmentFile=-/etc/evs/config
+#do we need this ? 
+ExecStartPre=-/usr/bin/docker stack rm phoenix
+ExecStart=/opt/evs/run/start_phoenix.sh
+
+[Install]
+WantedBy=multi-user.target
