@@ -56,6 +56,12 @@
       name: "*"
       state: latest
 
+  - name: start chrony
+    systemd:
+      name: chronyd
+      state: started
+      enabled: yes
+
   - name: create directory /opt/evs
     file: path=/opt/evs state=directory owner=evs group=evs mode=0755
 

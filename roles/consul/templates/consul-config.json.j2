@@ -1,9 +1,8 @@
 {
      {% if single_machine != true %}
+       "retry-join": 
        {% set comma = joiner(",") %}
-       "retry-join": {% for item in groups['cluster'] %}
-                        {{ comma() }}{{ groups.consul[item].ansible_default_ipv4.address }}
-                     {% endfor %}
+       {% for item in groups['consul'] %} {{ comma() }}{{ hostvars[item]['ansible_default_ipv4']['address'] }} {% endfor %}
      {% else %}
      "bootstrap": true,
      {% endif %}

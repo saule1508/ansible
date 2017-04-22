@@ -98,15 +98,16 @@
       src: "consul-systemd.service.j2"
       dest: /etc/systemd/system/consul.service
     vars:
-      consul_server_type: "{{ consul_bootstrap_server | ternary('bootstrap', 'server') }}"
+      consul_server_type: "{{ single_machine | ternary('bootstrap', 'server') }}"
 
+  - debug: var=groups['consul']
 
   - name: consul - config
     template:
       src: "consul-config.json.j2"
-      dest: /etc/consul.d/{{ consul_bootstrap_server | ternary('bootstrap', 'server') }}/config.json
+      dest: /etc/consul.d/{{ single_machine | ternary('bootstrap', 'server') }}/config.json
     vars:
-      bootstrap: "{{ consul_bootstrap_server | ternary('true', 'false') }}"
+      bootstrap: "{{ single_machine | ternary('true', 'false') }}"
       #join_server: "{{ consul_bootstrap_server | ternary('', consul_join_server) }}"
       #advertise_addr: "{{ consul_advertise_address }}"
       # TODO : use best local DNS resolv rather than google.
