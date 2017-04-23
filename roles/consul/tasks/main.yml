@@ -11,6 +11,12 @@
     when: groups.consul is undefined
     changed_when: false
 
+  # if we have one node, then it is a server
+  # if we have two nodes, the fist is a server and the second a client
+  # if we have more than two nodes, the first 3 are servers and the others client
+  # TODO: let the user define the group consult upfront and use info from there
+  #       see also on ansible galaxy a complete role that could be integrated
+
   - set_fact:
       consul_server: "{{ ( groups['consul'].index(inventory_hostname) == 0) | ternary(true,false) }}"
       consul_nbr_server: 1
@@ -23,9 +29,7 @@
     when: |
        (groups['consul'] | length) > 2
 
-  #- debug: var=consul_server
-  #- debug: var=consul_nbr_server
-
+  - debug: var=consul_nbr_server
 
   - name: consul - install unzip
     yum:
@@ -90,7 +94,6 @@
       owner: consul
       group: bin
     with_items:
-    - /etc/consul.d/bootstrap
     - /etc/consul.d/server
     - /etc/consul.d/client
     - /var/consul
@@ -111,9 +114,8 @@
       src: "consul-systemd.service.j2"
       dest: /etc/systemd/system/consul.service
     vars:
-      consul_server_type: "{{ (consul_nbr_server == 1) | ternary('bootstrap', 'server') }}"
+      consul_server_type: "{{ consul_server | ternary('server', 'client') }}"
 
-  - debug: var=groups['consul']
   - name: consul - config
     template:
       src: "consul-config.json.j2"
@@ -125,11 +127,11 @@
       # TODO : use best local DNS resolv rather than google.
       dns_recursor: "8.8.8.8"
 
-  - name: consul - start service
-    service: 
-      name: consul 
-      state: started
-      enabled: yes
+#  - name: consul - start service
+#    service: 
+#      name: consul 
+#      state: started
+#      enabled: yes
 
 
 ...

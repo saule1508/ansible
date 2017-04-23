@@ -1,23 +1,23 @@
 {
-     {% if single_machine != true %}
-       "retryr_join": "[" 
-       {% set comma = joiner(",") %}
-       {% for item in groups['consul'] %} {{ comma() }}{{ hostvars[item]['ansible_default_ipv4']['address'] }} {% endfor %} "],"
-     {% else %}
-     "bootstrap": true,
-     {% endif %}
-
-    "server": true,
-    "advertise_addr": "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}",
-    "bind_addr": "0.0.0.0",
-    "addresses": {
-        "http": "0.0.0.0",
-        "dns": "0.0.0.0"
-    },
-    "ports": {
-        "dns": 8600,
-        "http": 8500
-    },
-    "data_dir": "/var/consul",
-    "recursor": "{{ dns_recursor }}"
+{% if (consul_nbr_server > 1) %}
+  "retryr_join": "[" 
+ {% set comma = joiner(",") %}
+ {% for item in groups['consul'] %} {{ comma() }}{{ hostvars[item]['ansible_default_ipv4']['address'] }} {% endfor %} "],"
+{% endif %}
+{% if (consul_nbr_server == 1 and consul_server) %}
+  "bootstrap_expect": 1,
+{% endif %}
+  "server": {{ consul_server | ternary("true","false") }},
+  "advertise_addr": "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}",
+  "bind_addr": "0.0.0.0",
+  "addresses": {
+      "http": "0.0.0.0",
+      "dns": "0.0.0.0"
+  },
+  "ports": {
+      "dns": 8600,
+      "http": 8500
+  },
+  "data_dir": "/var/consul",
+  "recursor": "{{ dns_recursor }}"
 }
