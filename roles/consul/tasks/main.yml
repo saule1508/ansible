@@ -11,16 +11,21 @@
     when: groups.consul is undefined
     changed_when: false
 
+  - set_fact:
+      consul_server: "{{ ( groups['consul'].index(inventory_hostname) == 0) | ternary(true,false) }}"
+      consul_nbr_server: 1
+    when: |
+       (groups['consul'] | length) < 3
 
   - set_fact:
-      single_machine: true
-    when: "{{ groups['consul'] | length }} == 1"
+      consul_server: "{{ ( groups['consul'].index(inventory_hostname) < 3) | ternary(true,false) }}"
+      consul_nbr_server: 3
+    when: |
+       (groups['consul'] | length) > 2
 
-  - set_fact:
-      single_machine: false
-    when: "{{ groups['consul'] | length }} > 1"
+  #- debug: var=consul_server
+  #- debug: var=consul_nbr_server
 
-  - debug: var=single_machine
 
   - name: consul - install unzip
     yum:
@@ -90,24 +95,31 @@
     - /etc/consul.d/client
     - /var/consul
 
-  - set_fact:
-      consul_bootstrap_server: "{{ inventory_hostname == groups['consul'][0] }}"
+  - name: firewall port for consul
+    firewalld:
+      port: "{{ item }}"
+      permanent: true
+      state: enabled
+      immediate: yes
+    with_items:
+      - 8301/tcp
+      - 8500/tcp
+
 
   - name: consul - systemd
     template:
       src: "consul-systemd.service.j2"
       dest: /etc/systemd/system/consul.service
     vars:
-      consul_server_type: "{{ single_machine | ternary('bootstrap', 'server') }}"
+      consul_server_type: "{{ (consul_nbr_server == 1) | ternary('bootstrap', 'server') }}"
 
   - debug: var=groups['consul']
-
   - name: consul - config
     template:
       src: "consul-config.json.j2"
-      dest: /etc/consul.d/{{ single_machine | ternary('bootstrap', 'server') }}/config.json
+      dest: /etc/consul.d/{{ consul_server | ternary('server', 'client') }}/config.json
     vars:
-      bootstrap: "{{ single_machine | ternary('true', 'false') }}"
+      bootstrap: "{{ (consul_nbr_server == 1) | ternary('true', 'false') }}"
       #join_server: "{{ consul_bootstrap_server | ternary('', consul_join_server) }}"
       #advertise_addr: "{{ consul_advertise_address }}"
       # TODO : use best local DNS resolv rather than google.
