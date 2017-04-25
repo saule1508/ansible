@@ -8,54 +8,14 @@
     when: groups.cluster is undefined
 
   #- debug: var=groups['cluster']
-
-  - name: add config NODE_ID
-    lineinfile: 
+  - template:
+      src: config.j2
       dest: /etc/evs/config
-      state: present
-      regexp: '^NODE_ID='
-      line: NODE_ID={{ groups.cluster.index(inventory_hostname)+1 }}
-
-  - name: add config PG_NODE_NAME
-    lineinfile: 
-      dest: /etc/evs/config
-      state: present
-      regexp: '^PG_NODE_NAME='
-      line: PG_NODE_NAME=pg0{{ groups.cluster.index(inventory_hostname)+1 }}
-  
-  - name: remove config PG_BACKEND_LIST
-    lineinfile:
-      dest: /etc/evs/config
-      state: absent
-      regexp: '^PG_BACKEND_NODE_LIST'
-
-  - name: add config PG_BACKEND_NODE_LIST
-    lineinfile:
-      dest: /etc/evs/config
-      # Comma-separated string of all postgres backends
-      line: |
-        {% set comma = joiner(",") %}
-        PG_BACKEND_NODE_LIST={% for item in groups.cluster -%}
-            {{ comma() }}{{loop.index-1}}:pg0{{ loop.index }}:5432:1:/u01/pg96/data:ALLOW_TO_FAILOVER
-        {%- endfor %}
-      state: present
-
-  - name: remove config NODE_LIST
-    lineinfile:
-      dest: /etc/evs/config
-      state: absent
-      regexp: '^NODE_LIST'
-
-  - name: add config NODE_LIST
-    lineinfile:
-      dest: /etc/evs/config
-      # Comma-separated string of all nodename
-      line: |
-        {% set comma = joiner(",") %}
-        NODE_LIST={% for item in groups.cluster -%}
-            {{ comma() }}{{ hostvars[item].inventory_hostname }}
-        {%- endfor %}
-      state: present
+      owner: evs
+      group: evs
+      mode: 0550
+    vars:
+      initial_node_type: "{{ (inventory_hostname == groups.cluster[0]) | ternary('master','slave') }}"
 
   - name: Add IP address of all hosts in /etc/hosts 
     lineinfile:
@@ -95,18 +55,6 @@
 #    with_items: "{{ groups['cluster'] }}"
 
 #  - debug: var=groups['cluster'][0]
-
-  - lineinfile:
-      dest: /etc/evs/config
-      state: present
-      line: 'PG_INITIAL_NODE_TYPE=master'
-    when: inventory_hostname == groups.cluster[0] 
-
-  - lineinfile:
-      dest: /etc/evs/config
-      state: present
-      line: 'PG_INITIAL_NODE_TYPE=slave'
-    when: inventory_hostname != groups.cluster[0] 
 
   - name: determine swarm status on manager node
     shell: >

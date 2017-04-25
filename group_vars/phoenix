@@ -1,5 +1,3 @@
-#to do: remove postgres_ver
-postgres_ver: 9.6.2
 # VG docker will be created with sdb
 docker_disk: sdb
 # VG vg01 + lv lv_u01 mounted on /u01
@@ -13,19 +11,14 @@ ms_list: "{{ mslist | default('apiman,keycloak,asset,ingest,playout') }}"
 ms_ownerpwdlist: "{{ msownerpwdlist | default('apiman_owner,keycloak_owner,asset_owner,ingest_owner,playout_owner') }}"
 ms_userpwdlist: "{{ msuserpwdlist | default('apiman_user,keycloak_user,asset_user,ingest_user,playout_user') }}"
 repmgr_pwd: "{{ repmgrpwd | default('evs123') }}"
+
+#swarm interface used for cluster communication
+#if not set will use ansible default ipv4 interface
+swarm_iface: eth0
+
 #one or more swarm networks will be created (currently only one, called phoenix_network)
 docker_swarm_networks:
   phoenix_network:
     name: phoenix_network
     driver: overlay
     state: present
-
-test_nets:
-  net1:
-    name: net1
-    driver: overlay
-    state: present
-  net2:
-    name: net2
-    driver: overlay
-    state: absent
