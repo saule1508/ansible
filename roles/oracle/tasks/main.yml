@@ -1,0 +1,165 @@
+---
+- group:
+    name: oinstall
+    gid: 54321
+
+- group:
+    name: dba
+    gid: 54322
+
+- user:
+    name: oracle
+    uid: 54321
+    groups: "oinstall,dba"
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+    comment: "Oracle user"
+    state: present
+
+- name: Allow postgres user to have passwordless sudo
+  copy:
+    content: 'postgres ALL=(ALL) NOPASSWD: ALL'
+    dest: /etc/sudoers.d/oracle
+
+- name: set password for oracle
+  command: echo {{ oracle_unix_password }} | passwd --stdin oracle
+  when: oracle_unix_password is defined
+
+- name: install packages
+  yum:
+    name: {{ item }}
+  with_items:
+    - binutils 
+    - compat-libcap1 
+    - compat-libstdc++-33
+    - compat-libstdc++-33.i686
+    - gcc 
+    - gcc-c++ 
+    - glibc 
+    - glibc.i686 
+    - glibc-devel 
+    - glibc-devel.i686 
+    - ksh 
+    - libgcc 
+    - libgcc.i686 
+    - libstdc++ 
+    - libstdc++.i686 
+    - libstdc++-devel 
+    - libstdc++-devel.i686 
+    - libaio 
+    - libaio.i686 
+    - libaio-devel 
+    - libaio-devel.i686 
+    - libXext 
+    - libXext.i686 
+    - libXtst 
+    - libXtst.i686 
+    - libX11 
+    - libX11.i686 
+    - libXau 
+    - libXau.i686 
+    - libxcb 
+    - libxcb.i686 
+    - libXi 
+    - libXi.i686 
+    - make 
+    - sysstat 
+    - git 
+    - system-config-lvm 
+    - lvm* 
+    - dos2unix 
+    - unixODBC 
+    - mutt 
+    - gnuplot 
+    - wget 
+    - unzip 
+    - perl-Data-Dumper 
+    - perl-Digest-MD5 
+    - chrony
+    - 'perl(Digest::MD5)'
+
+- name: change grub options
+  command: 'grubby --remove-args="rhgb quiet" --add-args="numa=off"'
+
+- name: install limits for oracle
+  copy:
+    src: 99-oracle-limits.conf
+    dest: /etc/security/limits.d/99-oracle-limits.conf
+
+- name: kernel parameter shmni
+  sysctl:
+    name: kernel.shmmni
+    value: 4096
+
+- name: kernel parameter sem
+  sysctl:
+    name: kernel.sem
+    value: '250 32000 100 128'
+
+- name: kernel parameter net.core.rmem_default
+  sysctl:
+    name: net.core.rmem_default
+    value: 262144
+
+- name: kernel parameter net.core.rmem_max
+  sysctl:
+    name: net.core.rmem_max
+    value: 4194304
+
+- name: kernel parameter net.core.wmem_default
+  sysctl:
+    name: net.core.wmem_default
+    value: 262144
+
+- name: kernel parameter net.core.wmem_max
+  sysctl:
+    name: net.core.wmem_max
+    value: 10485576
+
+- name: kernel parameter net.ipv4.ip_local_port_range
+  sysctl:
+    name: net.ipv4.ip_local_port_range
+    value: '9000 65508'
+
+- name: kernel parameter fs.file-max
+  sysctl:
+    name: fs.file-max
+    value: 6815744
+
+- name: kernel parameter fs.aio-max-nr
+  sysctl:
+    name: fs.faio-max-nr
+    value: 1048576
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
