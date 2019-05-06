@@ -1,0 +1,3 @@
+[orarac]
+ora01 ansible_host=192.168.122.10 ansible_connection=ssh ansible_user=ansible ansible_become=true ansible_become_user=root
+ora02 ansible_host=192.168.122.11 ansible_connection=ssh ansible_user=ansible ansible_become=true ansible_become_user=root

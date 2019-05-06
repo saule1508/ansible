@@ -1,0 +1,13 @@
+---
+
+- hosts: orarac
+  vars:
+    - oracle_linux_password: new123
+    - oracle_grid_software_url: "/run/media/pierre/b651edce-0f5c-493e-8d05-2f10391f6b68/oa18/LINUX.X64_180000_grid_home.zip"
+    - oracle_db_software_url: "/run/media/pierre/b651edce-0f5c-493e-8d05-2f10391f6b68/oa18/LINUX.X64_180000_db_home.zip"
+
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  roles:
+    - oracle-grid
