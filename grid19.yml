@@ -14,8 +14,8 @@
 
   - name: include variables
     include_vars: 
-      file: develvar.yml
+      file: grid19var.yml
 
   roles:
-    - devel-grid
+    - grid19
 #    - oracle-grid

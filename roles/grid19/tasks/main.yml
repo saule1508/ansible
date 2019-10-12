@@ -75,3 +75,5 @@
     owner: "{{ grid_osuer }}"
     group: "{{ orainventory.osgroup }}"
     
+- name: install ssh keys
+  include_tasks: deploy-keys.yml

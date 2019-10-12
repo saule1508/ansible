@@ -30,8 +30,9 @@
   user:
     name: "{{ grid_osuser }}"
     groups: "{{ orainventory.osgroup }}, {{ oracle.install.asm.OSDBA }}, {{ oracle.install.asm.OSOPER }}, {{ oracle.install.asm.OSASM }}"
-    group: {{ orainventory.osgroup }}
     append: yes
+    group: {{ orainventory.osgroup }}
+    generate_ssh_key: yes
 
 - name: get cluster scan resolution
   command: "nslookup {{clustername}}-scan.{{domain}}"
