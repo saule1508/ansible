@@ -1,0 +1,168 @@
+# ############################################################################################## #
+# 
+# install Grid Infrastructure 19c
+#
+# ############################################################################################## #
+#
+# --------------------------------------------------------------------------------------------- #
+# cluster identification
+# ----------------------
+#   clustername : name of the cluster
+#                 - will be used to generate scan / vip hostnames
+#   node1       : not full qualified name of server 1
+#   node2       : not full qualified name of server 1
+#   domain      : network domain 
+# --------------------------------------------------------------------------------------------- #
+clustername: bxtstcrs01
+nodes:
+  - ora01
+  - ora02
+domain: unix.banksys.be
+# --------------------------------------------------------------------------------------------- #
+# LAN info
+# --------
+#   lan.public.name     : name of the lan used as public network
+#   lan.public.network  : network number of the lan used as public network
+#   lan.private.name    : name of the lan used as private network
+#   lan.private.network : network number of the lan used as private network
+# --------------------------------------------------------------------------------------------- #
+lan:
+  public:
+    name: eth0
+    network: 192.168.122.0 
+  private.name:
+    name:
+      - eth1
+    network: 10.0.0.0
+# --------------------------------------------------------------------------------------------- #
+# ASM info
+# --------
+#   asm.diskgroup.name      : name of diskgroup user OCR & Vote files & ASM spfile
+#   asm.diskdiscoverystring : ASM DiskDiscoveryString
+#   asm.diskgroup.disks     : list of devices used to create diskgroup  ( including path )
+#   asm.sysasmpasswords     : password for ASM SYS user
+#   asm.monitorpassword     : password for ASM ASNMSNMP user
+# --------------------------------------------------------------------------------------------- #
+asm.diskgroup.name: GRID
+asm.diskdiscoverystring: /dev/asm
+asm.diskgroup.disks: 
+  - /dev/asm-disk1
+  - /dev/asm-disk2
+  - /dev/asm-disk3
+
+asm.sysasmpassword=SYS_asm_1234
+asm.monitorpassword=ASMSNMP_asm_5678
+# --------------------------------------------------------------------------------------------- #
+# GI directories
+# --------------
+#   oracle_base               : directory to be used as ORACLE_BASE for GI installation
+#   software_base             : root directory for GI software installation
+#   oracle_home               : directory for GI software installation
+#   oracle_inventory.location : location of oraInventory
+#   stage.location            : stage directory of installation softwaer
+# --------------------------------------------------------------------------------------------- #
+oracle_base: /oraadm01/app/oragrid
+software_base: /oraapp01/app/oragrid
+oracle_home: /oraapp01/app/oragrid/product/GRID/12102
+orainventory.location: /oraadm01/app/oraInventory
+stage.location: /oraadm01/app/stage
+# --------------------------------------------------------------------------------------------- #
+# GI port
+# -------
+#   scanport         : port of SCAN LISTENER
+#   flexasmport      : port of Flex ASM LISTENER
+#   mmgtdbport       : port of Management DB  LISTENER
+# --------------------------------------------------------------------------------------------- #
+scanport: 1531
+flexasmport: 1532
+mgmtdbport: 1533
+# --------------------------------------------------------------------------------------------- #
+# GI OS
+# -----
+#   osuser                : OS user owning the Grid Infrastructure
+#   asm.osdba             : OSDBA group 
+#   asm.osoper            : OSOPER group 
+#   asm.osasm             : SYSASM group 
+#   orainventory.osgroup  : OS group owning the Oracle Inventory
+# --------------------------------------------------------------------------------------------- #
+osuser: oragrid
+# --------------
+# 'old'
+# --------------
+# asm.osdba=asmdba
+# asm.osoper=asmoper
+# asm.osasm=dba
+# --------------
+# 'new'
+# --------------
+asm.osdba: g_asm_sysdba
+asm.osoper: g_asm_sysoper
+asm.osasm: g_asm_sysasm
+# --------------
+orainventory.osgroup=oinstall
+# --------------------------------------------------------------------------------------------- #
+# GI div
+# -----
+#   psu.subdir       : subdir where we find GI PSU to install
+#   script.country   : country code ( FR / GE / BE )
+# --------------------------------------------------------------------------------------------- #
+# PSU 12.1.0.2.4
+# --------------
+psu.subdir: 20996835
+# --------------
+script.country=BE
+# --------------------------------------------------------------------------------------------- #
+# template type - DO NOT CHANGE
+# --------------------------------------------------------------------------------------------- #
+template.type: GI
+template.version: 19300
+#target.dir=<automaticly set to the dir where the scripts are generated>
+#
+# --------------------------------------------------------------------------------------------- #
+# BE only 
+# --------------------------------------------------------------------------------------------- #
+# List of files to wget
+# --------------------------------------------------------------------------------------------- #
+#   be.get.file*.wget   : full wget name of file 
+#   be.get.file*.subdir : subdir/. in stage area where file will be put
+#   be.get.file*.unzip  : unzip file after wget ( Y / N )
+# --------------------------------------------------------------------------------------------- #
+be.get.file1.wget=oracle/rdbms/x86-64/12.1.0.2.0/V46096-01_1of2.zip
+be.get.file1.subdir=12102
+be.get.file1.unzip=Y
+# --
+be.get.file2.wget=oracle/rdbms/x86-64/12.1.0.2.0/V46096-01_2of2.zip
+be.get.file2.subdir=12102
+be.get.file2.unzip=Y
+# --
+be.get.file3.wget=oracle/rdbms/x86-64/OPatch/1210110/p6880880_121010_Linux-x86-64.zip
+be.get.file3.subdir=.
+be.get.file3.unzip=N
+# --
+# PSU 12.1.0.2.4
+# --------------
+be.get.file4.wget=oracle/rdbms/x86-64/PatchSet/GRID/PSU121024/p20996835_121020_Linux-x86-64.zip
+be.get.file4.subdir=.
+be.get.file4.unzip=Y
+# --------------
+# --
+be.get.file5.wget=
+be.get.file5.subdir=
+be.get.file5.unzip=
+# --
+be.get.file6.wget=
+be.get.file6.subdir=
+be.get.file6.unzip=
+# --
+be.get.file7.wget=
+be.get.file7.subdir=
+be.get.file7.unzip=
+# --
+be.get.file8.wget=
+be.get.file8.subdir=
+be.get.file8.unzip=
+# --
+be.get.file9.wget=
+be.get.file9.subdir=
+be.get.file9.unzip=
+# --------------------------------------------------------------------------------------------- #

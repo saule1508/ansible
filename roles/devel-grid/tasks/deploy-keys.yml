@@ -1,0 +1,23 @@
+---
+- name: fetch oracle public ssh key
+  shell: cat /home/oracle/.ssh/id_rsa.pub
+  register: oracle_key
+
+- name: deploy oracle public key to all servers
+  authorized_key: user=oracle key="{{ item[0] }}" state=present
+  delegate_to: "{{ item[1] }}"
+  with_nested:
+    - "{{ oracle_key.stdout }}"
+    - "{{ groups['all'] }}"
+
+- name: fetch grid public ssh key
+  shell: cat /home/grid/.ssh/id_rsa.pub
+  register: grid_key
+
+- name: deploy grid public key to all servers
+  authorized_key: user=grid key="{{ item[0] }}" state=present
+  delegate_to: "{{ item[1] }}"
+  with_nested:
+    - "{{ grid_key.stdout }}"
+    - "{{ groups['all'] }}"
+...

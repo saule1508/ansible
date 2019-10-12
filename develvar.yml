@@ -1,0 +1,55 @@
+nodes:
+  - ora01
+  - ora02
+domain: local.net
+
+clustername: orarac01
+scanport: 1521
+
+lan:
+  public:
+    name: eth0
+    network: 192.168.122.0       
+  private:
+    - name: eth1
+      network: 10.0.0.0
+    - name: eth2
+      network: 10.10.0.0
+
+orainventory:
+  location: /u01/app/oraInventory
+  osgroup: oinstall
+
+grid_oracle_base: /u01/app/grid
+grid_osuser: grid
+grid_stage_location: /u01/staging/grid
+
+oracle:
+  install:
+    asm:
+      OSDBA: dba
+      OSOPER: dba
+      OSASM: dba
+
+configureGIMR: false
+
+asm:
+  sysasmpassword: wline123
+  diskgroup:
+    redundancy: NORMAL
+    disks:
+      - /dev/asm-grid1
+      - /dev/asm-grid2
+      - /dev/asm-grid3
+  diskdiscoverystring: "/dev/asm*"
+  monitorpassword: wline123
+  # Applicable only when 
+  configureGIMRDataDG: false
+  # Applicable only when
+  # configureGIMRDataDG is true
+  gimrDG:
+    name: DG_GIMR
+    redundancy: NORMAL
+    disks:  
+      - /dev/asm-grid4
+      - /dev/asm-grid5

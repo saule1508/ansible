@@ -1,0 +1,41 @@
+- name: getent group
+  getent:
+    database: group
+
+- name: getent password
+  getent:
+    database: passwd
+
+- assert:
+    msg: "User {{ grid_osuser }} is not defined"
+    quiet: no
+    that:
+      - getent_passwd['{{ grid_osuser }}'] is defined
+
+
+# check that the OS group for the oraInventory exists
+- assert:
+    msg: group {{ orainventory.osgroup }} exists
+    that:
+      - getent_group['{{ orainventory.osgroup }}'] is defined
+
+# checks that the operating group for ASM exist
+- assert:
+  msg: group {{ oracle.install.asm[item] }} exist
+  that:
+    - getent_group[oracle.install.asm['{{ item }}']] is defined
+  with_items: "{{ oracle.install.asm }}"
+
+- name: make sure user {{ grid_osuser }} is in the defined groups and primary group is {{ orainventory.osgroup }}
+  user:
+    name: "{{ grid_osuser }}"
+    groups: "{{ orainventory.osgroup }}, {{ oracle.install.asm.OSDBA }}, {{ oracle.install.asm.OSOPER }}, {{ oracle.install.asm.OSASM }}"
+    group: {{ orainventory.osgroup }}
+    append: yes
+
+- name: check that cluster scan resolves to 3 ip addresses
+  command: "nslookup {{clustername}}-scan.{{domain}}
+  register: nslookup_scan
+
+- debug:
+    var: nslookup_scan

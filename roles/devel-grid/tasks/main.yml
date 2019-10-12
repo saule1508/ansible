@@ -1,0 +1,77 @@
+---
+
+#- name: change grub options
+#  command: 'grubby --remove-args="rhgb quiet" --args="numa=off transparent_huge_page=never" --default-kernel=ALL'
+
+- name: pre check
+  include_tasks: precheck.yml
+
+- name: create {{ software_base }} directory
+  file:
+    path: "{{ software_base }}"
+    state: directory
+    owner: "{{ grid_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0750
+
+- name: create {{ orainventory.location  }} directory
+  file:
+    path: "{{ orainventory.location }}"
+    state: directory
+    owner: "{{ grid_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0775
+
+- name: create {{ grid_oracle_base }} directory
+  file:
+    path: "{{ grid_oracle_base }}"
+    state: directory
+    owner: "{{ grid_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0750
+
+- name: create scripts directory
+  file:
+    path: "{{ grid_oracle_base }}/scripts"
+    state: directory
+    owner: "{{ grid_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0775
+
+- name: create admin directories
+  file:
+    path: "{{ grid_oracle_base }}/scripts/{{ item }}"
+    owner: "{{ grid_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0775
+  with_items:
+     - install 
+     - sql
+     - log
+     - trace
+     - GRID
+     - audit
+
+- name: create staging directory for grid
+  file:
+    path: "{{ grid_stage_location }}"
+    state: directory
+    owner: "{{ grid_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0775
+
+- name: install grid installation zip file
+  copy:
+    src: "{{ oracle_grid_software_url }}"
+    dest: "{{ grid_stage_location }}"
+    owner: "{{ grid_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+  when: "inventory_hostname == groups.all[0]"
+
+- name: install gridSetup response file
+  template:
+    src: gridSetup.rsp.tmpl
+    dest: /tmp/gridSetup.rsp
+    owner: "{{ grid_osuer }}"
+    group: "{{ orainventory.osgroup }}"
+    

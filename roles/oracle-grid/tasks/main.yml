@@ -43,6 +43,11 @@
     content: 'oracle ALL=(ALL) NOPASSWD: ALL'
     dest: /etc/sudoers.d/oracle
 
+- name: Allow grid to have passwordless sudo
+  copy:
+    content: 'grid ALL=(ALL) NOPASSWD: ALL'
+    dest: /etc/sudoers.d/grid
+
 - name: set password for oracle
   command: "echo {{ oracle_unix_password }} | passwd --stdin oracle"
   when: oracle_unix_password is defined
