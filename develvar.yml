@@ -1,7 +1,7 @@
 nodes:
   - ora01
   - ora02
-domain: local.net
+domain: localnet
 
 clustername: orarac01
 scanport: 1521

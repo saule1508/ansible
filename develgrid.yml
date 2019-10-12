@@ -22,6 +22,10 @@
 
   - debug:
       var: nslookup_scan
+  - name: cluster scan resolution
+    assert:
+      that: "{{ nslookup_scan.stdout_lines | select('match','^Name:') | list | length }} == 3"
+
 
   - meta: end_play
 
