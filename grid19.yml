@@ -17,5 +17,5 @@
       file: grid19var.yml
 
   roles:
+    - oracle-grid
     - grid19
-#    - oracle-grid

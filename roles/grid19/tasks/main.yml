@@ -6,9 +6,9 @@
 - name: pre check
   include_tasks: precheck.yml
 
-- name: create {{ software_base }} directory
+- name: create {{ grid_software_base }} directory
   file:
-    path: "{{ software_base }}"
+    path: "{{ grid_software_base }}"
     state: directory
     owner: "{{ grid_osuser }}"
     group: "{{ orainventory.osgroup }}"
@@ -41,6 +41,7 @@
 - name: create admin directories
   file:
     path: "{{ grid_oracle_base }}/scripts/{{ item }}"
+    state: directory
     owner: "{{ grid_osuser }}"
     group: "{{ orainventory.osgroup }}"
     mode: 0775
@@ -60,10 +61,18 @@
     group: "{{ orainventory.osgroup }}"
     mode: 0775
 
+- name: create grid home
+  file:
+    path: "{{ grid_oracle_home }}"
+    state: directory
+    owner: "{{ grid_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0775
+
 - name: install grid installation zip file
   copy:
     src: "{{ oracle_grid_software_url }}"
-    dest: "{{ grid_stage_location }}"
+    dest: "{{ grid_oracle_home }}"
     owner: "{{ grid_osuser }}"
     group: "{{ orainventory.osgroup }}"
   when: "inventory_hostname == groups.all[0]"
@@ -72,7 +81,7 @@
   template:
     src: gridSetup.rsp.tmpl
     dest: /tmp/gridSetup.rsp
-    owner: "{{ grid_osuer }}"
+    owner: "{{ grid_osuser }}"
     group: "{{ orainventory.osgroup }}"
     
 - name: install ssh keys

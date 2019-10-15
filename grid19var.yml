@@ -21,6 +21,8 @@ orainventory:
   osgroup: oinstall
 
 grid_oracle_base: /u01/app/grid
+grid_software_base: /u01/app/grid
+grid_oracle_home: /u01/app/grid/product/GRID/19
 grid_osuser: grid
 grid_stage_location: /u01/staging/grid
 
@@ -37,6 +39,7 @@ asm:
   sysasmpassword: wline123
   diskgroup:
     redundancy: NORMAL
+    name: DG_GRID
     disks:
       - /dev/asm-grid1
       - /dev/asm-grid2

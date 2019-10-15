@@ -21,9 +21,9 @@
 
 # checks that the operating group for ASM exist
 - assert:
-  msg: group {{ oracle.install.asm[item] }} exist
-  that:
-    - getent_group[oracle.install.asm['{{ item }}']] is defined
+    that:
+      - getent_group[oracle.install.asm['{{ item }}']] is defined
+    msg: group {{ oracle.install.asm[item] }} exist
   with_items: "{{ oracle.install.asm }}"
 
 - name: make sure user {{ grid_osuser }} is in the defined groups and primary group is {{ orainventory.osgroup }}
@@ -31,7 +31,7 @@
     name: "{{ grid_osuser }}"
     groups: "{{ orainventory.osgroup }}, {{ oracle.install.asm.OSDBA }}, {{ oracle.install.asm.OSOPER }}, {{ oracle.install.asm.OSASM }}"
     append: yes
-    group: {{ orainventory.osgroup }}
+    group: "{{ orainventory.osgroup }}"
     generate_ssh_key: yes
 
 - name: get cluster scan resolution
@@ -40,7 +40,8 @@
 
 - name: check that cluster scan resolves to 3 ip addresses
   assert:
-    - that: "{{ nslookup_scan.stdout_lines | select('match','^Name:') | list | length }} == 3"
+    that: 
+      - "{{ nslookup_scan.stdout_lines | select('match','^Name:') | list | length }} == 3"
 
 - name: check asm disks
   stat:
