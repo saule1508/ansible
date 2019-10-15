@@ -275,7 +275,7 @@ oracle.install.crs.config.networkInterfaceList={{lan.public.name}}:{{lan.public.
 # This option is only applicable when CRS_CONFIG is chosen as install option,
 # and STANDALONE is chosen as cluster configuration.
 #------------------------------------------------------------------------------
-oracle.install.crs.configureGIMR={{configureGIMR}}
+oracle.install.crs.configureGIMR={{configureGIMR | ternary('false','true')}}
 
 #------------------------------------------------------------------------------
 # Create a separate ASM DiskGroup to store GIMR data.
@@ -284,7 +284,7 @@ oracle.install.crs.configureGIMR={{configureGIMR}}
 # Value should be 'true' for DOMAIN cluster configurations
 # Value can be true/false for STANDALONE cluster configurations.
 #------------------------------------------------------------------------------
-oracle.install.asm.configureGIMRDataDG={{ asm.configureGIMRDataDG }}
+oracle.install.asm.configureGIMRDataDG={{ asm.configureGIMRDataDG | ternary('false','true') }}
 
 ################################################################################
 #                                                                              #

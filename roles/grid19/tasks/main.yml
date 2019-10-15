@@ -70,19 +70,33 @@
     mode: 0775
 
 - name: install grid installation zip file
-  copy:
+  unarchive:
     src: "{{ oracle_grid_software_url }}"
     dest: "{{ grid_oracle_home }}"
     owner: "{{ grid_osuser }}"
     group: "{{ orainventory.osgroup }}"
   when: "inventory_hostname == groups.all[0]"
 
+- name: install cvuqdisk rpm
+  yum:
+    name: "{{ grid_oracle_home }}/cv/rpm/cvuqdisk-1.0.10-1.rpm"
+    state: present
+
 - name: install gridSetup response file
   template:
     src: gridSetup.rsp.tmpl
-    dest: /tmp/gridSetup.rsp
+    dest: "/home/{{ grid_osuser }}/gridSetup.rsp"
     owner: "{{ grid_osuser }}"
     group: "{{ orainventory.osgroup }}"
+    mode: 0750
     
+- name: install gridSetup step 1
+  template:
+    src: 01_gridSetup_prereq.sh
+    dest: "/home/{{ grid_osuser }}"
+    owner: "{{ grid_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0750
+
 - name: install ssh keys
   include_tasks: deploy-keys.yml

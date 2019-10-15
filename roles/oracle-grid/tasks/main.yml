@@ -197,3 +197,9 @@
 - name: include tasks for ssh equivalence
   include: deploy-keys.yml
     
+- name: NOZERCONF in /etc/sysconfig/network
+  lineinfile:
+    path: /etc/sysconfig/network
+    regexp: '^NOZEROCONF='
+    line: NOZEROCONF=yes
+    

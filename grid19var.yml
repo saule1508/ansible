@@ -11,7 +11,7 @@ lan:
     name: eth0
     network: 192.168.122.0       
   private:
-    - name: eth1
+    - name: enp8s0
       network: 10.0.0.0
     - name: eth2
       network: 10.10.0.0
