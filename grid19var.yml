@@ -13,14 +13,12 @@ lan:
   private:
     - name: enp8s0
       network: 10.0.0.0
-    - name: eth2
-      network: 10.10.0.0
 
 orainventory:
   location: /u01/app/oraInventory
   osgroup: oinstall
 
-grid_oracle_base: /u01/app/grid
+grid_oracle_base: /u01/app/grid_base
 grid_software_base: /u01/app/grid
 grid_oracle_home: /u01/app/grid/product/GRID/19
 grid_osuser: grid
