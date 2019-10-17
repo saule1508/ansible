@@ -16,6 +16,43 @@
     include_vars: 
       file: grid19var.yml
 
+  - name: check asm disks
+    stat:
+      path: "{{ item }}"
+      follow: "yes"
+    with_items: "{{ asm.diskgroup.disks }}"
+    register: asm_disks
+
+  - name: check asm disks exists for disk group
+    assert:
+      that:
+        -  item.stat.exists
+        -  "item.stat.pw_name == '{{ grid_osuser }}'"
+        -  "item.stat.gr_name == '{{ oracle.install.asm.OSDBA }}'"
+    with_items: "{{ asm_disks.results }}"
+
+  - name: get asm disks for GIMR
+    stat:
+      path: "{{ item }}"
+      follow: "yes"
+    with_items: "{{ asm.gimrDG.disks }}"
+    register: asm_gimr_disks
+    when: configureGIMR == True
+
+  - debug:
+      var: asm.gimrDG.disks
+
+  - name: check asm disks exists for GIMR diskgroup
+    assert:
+      that:
+        -  item.stat.exists
+        -  "item.stat.pw_name == '{{ grid_osuser }}'"
+        -  "item.stat.gr_name == '{{ oracle.install.asm.OSDBA }}'"
+    with_items: "{{ asm_gimr_disks }}"
+    when: configureGIMR == True
+
+  - meta: end_play
+
   roles:
     - oracle-grid
     - grid19

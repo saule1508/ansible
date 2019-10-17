@@ -77,10 +77,33 @@
     group: "{{ orainventory.osgroup }}"
   when: "inventory_hostname == groups.all[0]"
 
+- name: fetch cvuqdisk rpm 
+  fetch:
+     src: "{{ grid_oracle_home }}/cv/rpm/cvuqdisk-1.0.10-1.rpm"
+     dest: ./cvuqdisk-1.0.10-1.rpm
+     flat: true
+  when: "inventory_hostname == groups.all[0]"
+  
+- name: copy cvuqdisk rpm
+  copy:
+    src: ./cvuqdisk-1.0.10-1.rpm
+    dest: /tmp
+
 - name: install cvuqdisk rpm
   yum:
-    name: "{{ grid_oracle_home }}/cv/rpm/cvuqdisk-1.0.10-1.rpm"
+    name: /tmp/cvuqdisk-1.0.10-1.rpm
     state: present
+
+- name: remove cvuqdisk locally
+  file:
+    path: ./cvuqdisk-1.0.10-1.rpm 
+    state: absent
+  delegate_to: localhost
+
+- name: remove cvuqdisk from tmp
+  file:
+    path: /tmp/cvuqdisk-1.0.10-1.rpm 
+    state: absent
 
 - name: install gridSetup response file
   template:
@@ -100,3 +123,37 @@
 
 - name: install ssh keys
   include_tasks: deploy-keys.yml
+
+- name: run gridSetup prereq
+  command: "/home/{{ grid_osuser }}/01_gridSetup_prereq.sh"
+  become_user: "{{ grid_osuser }}"
+  when: run_gridSetup_prereq and
+        inventory_hostname == groups.all[0]
+  register: prereq_stdout
+
+- name: run gridSetup
+  command: "/home/{{ grid_osuser }}/02_gridSetup.sh"
+  become_user: "{{ grid_osuser }}"
+  when: inventory_hostname == groups.all[0]
+  register: gridsetup_stdout
+
+- name: run orainstRoot
+  command: "{{ orainventory_location }}/orainstRoot.sh"
+  when: inventory_hostname == groups.all[0]
+
+- name: run orainstRoot
+  command: "{{ grid_oracle_home }}/root.sh"
+  when: inventory_hostname == groups.all[0]
+
+- name: run orainstRoot
+  command: "{{ orainventory_location }}/orainstRoot.sh"
+  when: inventory_hostname != groups.all[0]
+
+- name: run orainstRoot
+  command: "{{ grid_oracle_home }}/root.sh"
+  when: inventory_hostname != groups.all[0]
+
+- name: configTools
+  command: "{{ grid_oracle_home }}/gridSetup.sh -executeConfigTools -responseFile /home/{{ grid_osuser }}/gridSetup.rsp -silent"
+  become_user: "{{ grid_osuser }}"
+  when: inventory_hostname == groups.all[0]

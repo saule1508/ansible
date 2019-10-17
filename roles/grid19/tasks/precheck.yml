@@ -1,3 +1,5 @@
+---
+
 - name: getent group
   getent:
     database: group
@@ -75,3 +77,13 @@
   with_items: "{{ asm_gimr_disks }}"
   when: configureGIMR == True
 
+- assert:
+    that:
+      - lan.public.name in ansible_facts.interfaces
+
+- assert:
+    that:
+      - item['name'] in ansible_facts['interfaces']
+  with_items: " {{ lan.private }}"
+
+...
