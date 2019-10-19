@@ -3,8 +3,6 @@
 - hosts: orarac
   vars:
     - oracle_linux_password: new123
-    - oracle_grid_software_url: "/run/media/pierre/b651edce-0f5c-493e-8d05-2f10391f6b68/LINUX.X64_193000_grid_home.zip"
-    - oracle_db_software_url: "/run/media/pierre/b651edce-0f5c-493e-8d05-2f10391f6b68/LINUX.X64_193000_db_home.zip"
 
   remote_user: ansible
   become: yes
@@ -16,43 +14,13 @@
     include_vars: 
       file: grid19var.yml
 
-  - name: check asm disks
-    stat:
-      path: "{{ item }}"
-      follow: "yes"
-    with_items: "{{ asm.diskgroup.disks }}"
-    register: asm_disks
-
-  - name: check asm disks exists for disk group
-    assert:
-      that:
-        -  item.stat.exists
-        -  "item.stat.pw_name == '{{ grid_osuser }}'"
-        -  "item.stat.gr_name == '{{ oracle.install.asm.OSDBA }}'"
-    with_items: "{{ asm_disks.results }}"
-
-  - name: get asm disks for GIMR
-    stat:
-      path: "{{ item }}"
-      follow: "yes"
-    with_items: "{{ asm.gimrDG.disks }}"
-    register: asm_gimr_disks
-    when: configureGIMR == True
+  - name: check
+    include_tasks: check_cluster.yml
 
   - debug:
-      var: asm.gimrDG.disks
-
-  - name: check asm disks exists for GIMR diskgroup
-    assert:
-      that:
-        -  item.stat.exists
-        -  "item.stat.pw_name == '{{ grid_osuser }}'"
-        -  "item.stat.gr_name == '{{ oracle.install.asm.OSDBA }}'"
-    with_items: "{{ asm_gimr_disks }}"
-    when: configureGIMR == True
-
-  - meta: end_play
+      var: check_crs_ok
 
   roles:
-    - oracle-grid
-    - grid19
+    - {name: oracle-grid, when: check_crs_ok == False}
+    - {name: grid19, when: check_crs_ok == False}
+    - grid19-ru

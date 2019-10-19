@@ -71,7 +71,7 @@
 
 - name: install grid installation zip file
   unarchive:
-    src: "{{ oracle_grid_software_url }}"
+    src: "{{ oracle_grid_software_download_url }}"
     dest: "{{ grid_oracle_home }}"
     owner: "{{ grid_osuser }}"
     group: "{{ orainventory.osgroup }}"

@@ -1,3 +1,11 @@
+oracle_grid_software_download_url: "/run/media/pierre/b651edce-0f5c-493e-8d05-2f10391f6b68/LINUX.X64_193000_grid_home.zip"
+opatch_download_url: "/run/media/pierre/b651edce-0f5c-493e-8d05-2f10391f6b68/p6880880_190000_Linux-x86-64.zip"
+oracle_grid_ru_download_url: "/run/media/pierre/b651edce-0f5c-493e-8d05-2f10391f6b68/p30116789_190000_Linux-x86-64.zip"
+oracle_db_software_download_url: "/run/media/pierre/b651edce-0f5c-493e-8d05-2f10391f6b68/LINUX.X64_193000_db_home.zip"
+
+grid_patch_number: 30116789
+
+
 nodes:
   - ora01
   - ora02

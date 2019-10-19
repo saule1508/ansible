@@ -1,0 +1,4 @@
+#!/bin/bash
+
+export PATH=$PATH:{{ grid_oracle_home }}/OPatch 
+opatchauto apply {{ grid_stage_location }}/{{ grid_patch_number }} -oh {{ grid_oracle_home }}

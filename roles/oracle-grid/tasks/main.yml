@@ -78,7 +78,7 @@
 
 #- name: install grid installation zip file
 #  copy:
-#    src: "{{ oracle_grid_software_url }}"
+#    src: "{{ oracle_grid_software_download_url }}"
 #    dest: /u01/staging/grid
 #    owner: grid
 #    group: oinstall
@@ -94,7 +94,7 @@
 
 #- name: install db installation zip file
 #  copy:
-#    src: "{{ oracle_db_software_url }}"
+#    src: "{{ oracle_db_software_download_url }}"
 #    dest: /u01/staging/db
 #    owner: oracle
 #    group: oinstall
@@ -140,6 +140,7 @@
       - unixODBC
       - wget
       - unzip
+      - psmisc
 
 - name: change grub options
   command: 'grubby --remove-args="rhgb quiet" --args="numa=off transparent_huge_page=never" --default-kernel=ALL'

@@ -1,0 +1,49 @@
+---
+
+- name: check cluster all
+  command: "{{ grid_oracle_home }}/bin/crsctl check cluster -all"
+  register: check_cluster
+  changed_when: false
+
+- set_fact:
+    nbr_crs_online: "{{ check_cluster.stdout_lines | select('match','^.*Cluster Ready Services is online') | list | count }}"
+
+- set_fact:
+    nbr_css_online: "{{ check_cluster.stdout_lines | select('match','^.*Cluster Synchronization Services is online') | list | count }}"
+
+- set_fact:
+    nbr_em_online: "{{ check_cluster.stdout_lines | select('match','^.*Event Manager is online') | list | count }}"
+
+- debug:
+    var: nbr_crs_online
+    verbosity: 0
+
+- debug:
+    var: nbr_css_online
+    verbosity: 2
+
+- debug:
+    var: nbr_em_online
+    verbosity: 2
+
+- set_fact:
+    check_crs_ok: False
+
+- debug:
+    var: check_crs_ok 
+
+- set_fact:
+    check_crs_ok: True
+  when: nbr_crs_online == "{{ (nodes|length) }}"
+     and nbr_css_online == "{{ nodes|length }}"
+     and nbr_em_online == "{{ nodes|length }}"
+
+- assert:
+    that:
+      - nbr_crs_online == "{{ nodes|length }}"
+      - nbr_css_online == "{{ nodes|length }}"
+      - nbr_em_online == "{{ nodes|length }}"
+
+- assert:
+    that:
+      check_crs_ok == True
