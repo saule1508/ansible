@@ -1,0 +1,29 @@
+---
+
+- name: getent group
+  getent:
+    database: group
+
+- name: getent password
+  getent:
+    database: passwd
+
+- assert:
+    msg: "User {{ oracle_osuser }} is defined"
+    quiet: no
+    that:
+      - getent_passwd['{{ oracle_osuser }}'] is defined
+      - getent_passwd['{{ osdba }}'] is defined
+      - getent_passwd['{{ osoper }}'] is defined
+      - getent_group['{{ orainventory.osgroup }}'] is defined
+
+
+- name: make sure user {{ oracle_osuser }} is in the defined groups and primary group is {{ orainventory.osgroup }}
+  user:
+    name: "{{ oracle_osuser }}"
+    groups: "{{ orainventory.osgroup }}, {{ osdba }}, {{ osoper }}"
+    append: yes
+    group: "{{ orainventory.osgroup }}"
+    generate_ssh_key: yes
+
+...

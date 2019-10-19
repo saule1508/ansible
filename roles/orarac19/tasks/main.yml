@@ -1,0 +1,97 @@
+---
+
+- name: pre check
+  include_tasks: precheck.yml
+
+- name: create {{ oracle_base }} directory
+  file:
+    path: "{{ oracle_base }}"
+    state: directory
+    owner: "{{ oracle_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0750
+
+- name: create {{ software_base }} directory
+  file:
+    path: "{{ software_base }}"
+    state: directory
+    owner: "{{ oracle_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0750
+
+- name: create {{ oracle_home }} directory
+  file:
+    path: "{{ oracle_home }}"
+    state: directory
+    owner: "{{ oracle_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0750
+
+- name: create {{ orainventory.location  }} directory
+  file:
+    path: "{{ orainventory.location }}"
+    state: directory
+    owner: "{{ grid_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0775
+
+- name: install oracle installation zip file
+  unarchive:
+    src: "{{ oracle_software_download_url }}"
+    dest: "{{ oracle_home }}"
+    owner: "{{ oracle_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+  when: "inventory_hostname == groups.all[0]"
+
+- name: install runInstaller response file
+  template:
+    src: oracle19.rsp.tmpl
+    dest: "/home/{{ oracle_osuser }}/oracle19.rsp"
+    owner: "{{ oracle_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0750
+    
+- name: install runInstaller step 1
+  template:
+    src: 01_runInstaller_prereq.sh
+    dest: "/home/{{ oracle_osuser }}"
+    owner: "{{ oracle_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0750
+
+- name: install ssh keys
+  include_tasks: deploy-keys.yml
+
+- name: run prereq
+  command: "/home/{{ oracle_osuser }}/01_runInstaller_prereq.sh"
+  become_user: "{{ oracle_osuser }}"
+  when: run_runInstaller_prereq and
+        inventory_hostname == groups.all[0]
+  register: prereq_stdout
+
+- name: run Installer
+  command: "/home/{{ oracle_osuser }}/02_gridSetup.sh"
+  become_user: "{{ grid_osuser }}"
+  when: inventory_hostname == groups.all[0]
+  register: gridsetup_stdout
+
+- name: run orainstRoot
+  command: "{{ orainventory_location }}/orainstRoot.sh"
+  when: inventory_hostname == groups.all[0]
+
+- name: run orainstRoot
+  command: "{{ grid_oracle_home }}/root.sh"
+  when: inventory_hostname == groups.all[0]
+
+- name: run orainstRoot
+  command: "{{ orainventory_location }}/orainstRoot.sh"
+  when: inventory_hostname != groups.all[0]
+
+- name: run orainstRoot
+  command: "{{ grid_oracle_home }}/root.sh"
+  when: inventory_hostname != groups.all[0]
+
+- name: configTools
+  command: "{{ grid_oracle_home }}/gridSetup.sh -executeConfigTools -responseFile /home/{{ grid_osuser }}/gridSetup.rsp -silent"
+  become_user: "{{ grid_osuser }}"
+  when: inventory_hostname == groups.all[0]

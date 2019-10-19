@@ -1,0 +1,2 @@
+oracle_unix_password: new123
+run_gridSetup_prereq: true

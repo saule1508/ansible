@@ -1,0 +1,9 @@
+---
+
+- name: check cluster all
+  command: "{{ grid_oracle_home }}/bin/crsctl check cluster -all"
+  register: check_cluster
+
+- debug:
+    var: check_cluster.stdout
+
