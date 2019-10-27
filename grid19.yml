@@ -21,6 +21,8 @@
       var: check_crs_ok
 
   roles:
-    - {name: oracle-grid, when: check_crs_ok == False}
-    - {name: grid19, when: check_crs_ok == False}
-    - grid19-ru
+#    - {name: oracle-grid, when: check_crs_ok == False}
+#    - {name: grid19, when: check_crs_ok == False}
+#    - grid19-ru
+#    - orarac19
+    - orarac19-ru

@@ -1,33 +1,41 @@
 ---
 
 - name: fetch grid public ssh key
-  shell: cat /home/{{ grid_osuser }}/.ssh/id_rsa.pub
-  register: oragrid_key
+  shell: cat /home/{{ oracle_osuser }}/.ssh/id_rsa.pub
+  register: oracle_key
 
-- name: deploy grid public key to all servers
+- name: deploy oracle public key to all servers
   authorized_key: 
-    user: "{{ grid_osuser }}" 
+    user: "{{ oracle_osuser }}" 
     key: "{{ item[0] }}" 
     state: present
   delegate_to: "{{ item[1] }}"
   with_nested:
-    - "{{ oragrid_key.stdout }}"
+    - "{{ oracle_key.stdout }}"
     - "{{ groups['all'] }}"
 
 - name: generate host key file
-  command: "ssh-keyscan -t ecdsa-sha2-nistp256 {{ inventory_hostname }}"
+  command: "ssh-keyscan -t rsa {{ inventory_hostname }}"
   register: host_pub_key
 
-- debug: var=host_pub_key.stdout
+- debug: 
+    var: host_pub_key.stdout
+    verbosity: 2
 
 - name: add to know_hosts of other servers
   known_hosts:
-    path: /home/{{ grid_osuser }}/.ssh/known_hosts
+    path: "/home/{{ oracle_osuser }}/.ssh/known_hosts"
     name: "{{ inventory_hostname }}"
     key: "{{ host_pub_key.stdout }}"
   delegate_to: "{{ item }}"
   # when: item != inventory_hostname
   with_items:
     - "{{ groups['all'] }}"
+
+- name: ownership of known host
+  file:
+    path: "/home/{{ oracle_osuser }}/.ssh/known_hosts"
+    owner: "{{ oracle_osuser }}"
+    group: "{{ orainventory.osgroup }}"
 
 ...

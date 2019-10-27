@@ -1,0 +1,47 @@
+---
+- name: check variables
+  assert:
+    that:
+      - opatch_download_url is defined
+      - oracle_grid_ru_download_url is defined
+      - grid_stage_location is defined
+      - grid_patch_number is defined
+
+- name: deploy OPatch
+  unarchive:
+    src: "{{ opatch_download_url }}"
+    dest: "{{ oracle_home }}"
+    owner: "{{ oracle_osuser }}"
+    group: oinstall
+    mode: 0755
+
+- name: deploy RU in stage directory
+  unarchive:
+    src: "{{ oracle_grid_ru_download_url }}"
+    dest: "{{ grid_stage_location }}"
+    owner: "{{ grid_osuser }}"
+    group: oinstall
+    mode: 0775
+
+- name: check inventory
+  shell: "sudo -u {{ oracle_osuser }} {{ oracle_home }}/OPatch/opatch lsinventory -detail -oh {{ oracle_home }}"
+  register: lsinventory_result
+  #become: yes
+  #become_user: "{{ oracle_osuser }}"
+  #become_method: sudo
+  changed_when: false
+
+- name: copy script to apply patch
+  template:
+    src: opatchauto_apply_db.sh.tmpl
+    dest: /tmp/opatchauto_apply_db.sh
+    owner: "{{ oracle_osuser }}"
+    mode: 0750
+
+- name: opatchauto on node 1
+  shell: "/tmp/opatchauto_apply_db.sh"
+  when: inventory_hostname == groups['all'][0]
+  
+- name: opatchauto on node 2
+  shell: "/tmp/opatchauto_apply_db.sh"
+  when: inventory_hostname == groups['all'][1]

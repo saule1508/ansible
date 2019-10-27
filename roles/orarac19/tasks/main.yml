@@ -11,9 +11,9 @@
     group: "{{ orainventory.osgroup }}"
     mode: 0750
 
-- name: create {{ software_base }} directory
+- name: create {{ oracle_base }} directory
   file:
-    path: "{{ software_base }}"
+    path: "{{ oracle_base }}"
     state: directory
     owner: "{{ oracle_osuser }}"
     group: "{{ orainventory.osgroup }}"
@@ -37,59 +37,83 @@
 
 - name: install oracle installation zip file
   unarchive:
-    src: "{{ oracle_software_download_url }}"
+    src: "{{ oracle_db_software_download_url }}"
     dest: "{{ oracle_home }}"
     owner: "{{ oracle_osuser }}"
     group: "{{ orainventory.osgroup }}"
-  when: "inventory_hostname == groups.all[0]"
+  when: inventory_hostname == groups.all[0] and oracle_skip_runInstaller == False
 
 - name: install runInstaller response file
   template:
-    src: oracle19.rsp.tmpl
-    dest: "/home/{{ oracle_osuser }}/oracle19.rsp"
+    src: db_install.rsp.tmpl
+    dest: "/home/{{ oracle_osuser }}/db_install.rsp"
     owner: "{{ oracle_osuser }}"
     group: "{{ orainventory.osgroup }}"
     mode: 0750
+  when: inventory_hostname == groups.all[0] and run_runInstaller_prereq
     
 - name: install runInstaller step 1
   template:
-    src: 01_runInstaller_prereq.sh
-    dest: "/home/{{ oracle_osuser }}"
+    src: 01_runInstaller_prereq.sh.tmpl
+    dest: "/home/{{ oracle_osuser }}/01_runInstaller_prereq.sh"
     owner: "{{ oracle_osuser }}"
     group: "{{ orainventory.osgroup }}"
     mode: 0750
+  when: "inventory_hostname == groups.all[0]"
+
+- name: install runInstaller step 2
+  template:
+    src: 02_runInstaller.sh.tmpl
+    dest: "/home/{{ oracle_osuser }}/02_runInstaller.sh"
+    owner: "{{ oracle_osuser }}"
+    group: "{{ orainventory.osgroup }}"
+    mode: 0750
+  when: "inventory_hostname == groups.all[0]"
 
 - name: install ssh keys
   include_tasks: deploy-keys.yml
 
 - name: run prereq
-  command: "/home/{{ oracle_osuser }}/01_runInstaller_prereq.sh"
+  command: "su - oracle /home/{{ oracle_osuser }}/01_runInstaller_prereq.sh"
+  become: yes
   become_user: "{{ oracle_osuser }}"
+  become_method: sudo
   when: run_runInstaller_prereq and
         inventory_hostname == groups.all[0]
   register: prereq_stdout
 
+
 - name: run Installer
-  command: "/home/{{ oracle_osuser }}/02_gridSetup.sh"
-  become_user: "{{ grid_osuser }}"
-  when: inventory_hostname == groups.all[0]
-  register: gridsetup_stdout
+  command: "su - oracle /home/{{ oracle_osuser }}/02_runInstaller.sh"
+  become: yes
+  become_user: "{{ oracle_osuser }}"
+  when: inventory_hostname == groups.all[0] and oracle_skip_runInstaller == False
+  register: runInstaller_res
+  failed_when: false
 
-- name: run orainstRoot
-  command: "{{ orainventory_location }}/orainstRoot.sh"
-  when: inventory_hostname == groups.all[0]
+- debug:
+    var: runInstaller_res
+  when: oracle_skip_runInstaller == False
 
-- name: run orainstRoot
-  command: "{{ grid_oracle_home }}/root.sh"
-  when: inventory_hostname == groups.all[0]
+- set_fact:
+    run_installer_ok: true
+  when: oracle_skip_runInstaller == False
+   and  (runInstaller_res.stdout is search('.*Successfully Setup Software with warning(s).*') or runInstaller_res.rc == 0)
 
-- name: run orainstRoot
-  command: "{{ orainventory_location }}/orainstRoot.sh"
+
+- name: run root.sh on node 1
+  command: "{{ oracle_home }}/root.sh"
+  when: inventory_hostname == groups.all[0]
+   and run_installer_ok 
+  register: rootsh_node1
+
+- debug:
+    var: rootsh_node1
+
+- name: run root.sh on other nodes
+  command: "{{ oracle_home }}/root.sh"
   when: inventory_hostname != groups.all[0]
-
-- name: run orainstRoot
-  command: "{{ grid_oracle_home }}/root.sh"
-  when: inventory_hostname != groups.all[0]
+   and hostvars[groups.all[0]]['{{ rootsh_node1 }}'].rc == 0
 
 - name: configTools
   command: "{{ grid_oracle_home }}/gridSetup.sh -executeConfigTools -responseFile /home/{{ grid_osuser }}/gridSetup.rsp -silent"

@@ -13,15 +13,15 @@
     quiet: no
     that:
       - getent_passwd['{{ oracle_osuser }}'] is defined
-      - getent_passwd['{{ osdba }}'] is defined
-      - getent_passwd['{{ osoper }}'] is defined
+      - getent_group['{{ oracle.install.oracle.OSDBA }}'] is defined
+      - getent_group['{{ oracle.install.oracle.OSOPER }}'] is defined
       - getent_group['{{ orainventory.osgroup }}'] is defined
 
 
 - name: make sure user {{ oracle_osuser }} is in the defined groups and primary group is {{ orainventory.osgroup }}
   user:
     name: "{{ oracle_osuser }}"
-    groups: "{{ orainventory.osgroup }}, {{ osdba }}, {{ osoper }}"
+    groups: "{{ orainventory.osgroup }}, {{ oracle.install.oracle.OSDBA }}, {{ oracle.install.oracle.OSOPER }}"
     append: yes
     group: "{{ orainventory.osgroup }}"
     generate_ssh_key: yes

@@ -5,6 +5,10 @@ oracle_db_software_download_url: "/run/media/pierre/b651edce-0f5c-493e-8d05-2f10
 
 grid_patch_number: 30116789
 
+run_runInstaller_prereq: true
+# if you want to resume oracle installation
+# after runInstaller, i.e. run the oraInstroot and root.sh script + patch...
+oracle_skip_runInstaller: false
 
 nodes:
   - ora01
@@ -32,12 +36,19 @@ grid_oracle_home: /u01/app/grid/product/GRID/19
 grid_osuser: grid
 grid_stage_location: /u01/staging/grid
 
+oracle_osuser: oracle
+oracle_home: /u01/app/oracle/product/19
+oracle_base: /u01/app/oracle
+
 oracle:
   install:
     asm:
       OSDBA: dba
       OSOPER: dba
       OSASM: dba
+    oracle:
+      OSDBA: dba
+      OSOPER: dba
 
 configureGIMR: false
 

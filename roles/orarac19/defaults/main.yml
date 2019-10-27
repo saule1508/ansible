@@ -1,2 +1,4 @@
 oracle_unix_password: new123
-run_gridSetup_prereq: true
+run_runInstaller_prereq: true
+oracle_skip_runInstaller: false
+run_installer_ok: false

@@ -145,23 +145,26 @@
   when: inventory_hostname == groups.all[0]
   register: gridsetup_stdout
 
-- name: run orainstRoot
+- name: run orainstRoot on node 1
   command: "{{ orainventory_location }}/orainstRoot.sh"
   when: inventory_hostname == groups.all[0]
 
-- name: run orainstRoot
+- name: run root.sh on node 1
   command: "{{ grid_oracle_home }}/root.sh"
   when: inventory_hostname == groups.all[0]
+  register: rootsh_node1_res
 
-- name: run orainstRoot
+- name: run orainstRoot on other nodes
   command: "{{ orainventory_location }}/orainstRoot.sh"
   when: inventory_hostname != groups.all[0]
 
-- name: run orainstRoot
+- name: run root.sh on other nodes
   command: "{{ grid_oracle_home }}/root.sh"
   when: inventory_hostname != groups.all[0]
+   and hostvars[groups['all'][0]]['rootsh_node1_res'].rc == 0
 
 - name: configTools
   command: "{{ grid_oracle_home }}/gridSetup.sh -executeConfigTools -responseFile /home/{{ grid_osuser }}/gridSetup.rsp -silent"
   become_user: "{{ grid_osuser }}"
   when: inventory_hostname == groups.all[0]
+   and hostvars[groups['all'][0]]['rootsh_node1_res'].rc == 0
